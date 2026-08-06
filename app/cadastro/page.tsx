@@ -3,7 +3,8 @@
 import { useState, type FormEvent } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { AlertCircle, ArrowLeft, Swords } from "lucide-react"
+import { AlertCircle, ArrowLeft } from "lucide-react"
+import { BeltIcon } from "@/components/belt-icon"
 import { Button } from "@/components/ui/button"
 import { Campo, ErroCampo, Input, Label } from "@/components/form-controls"
 import { useApp } from "@/components/app-provider"
@@ -40,8 +41,8 @@ export default function CadastroPage() {
     <main className="flex min-h-dvh flex-col items-center justify-center bg-secondary px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <span className="mb-4 flex size-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Swords className="size-6" />
+          <span className="mb-4 flex size-12 items-center justify-center rounded-xl bg-foreground text-background">
+            <BeltIcon className="size-7" />
           </span>
           <h1 className="text-2xl font-semibold text-foreground">Criar conta</h1>
           <p className="mt-1 text-sm text-muted-foreground text-balance">

@@ -7,7 +7,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Dojo Manager — Gestão de Judô',
+  title: "Zen'yo App — Gestão de Judô",
   description:
     'Sistema de gestão de atividades de judô para professores: cadastro e acompanhamento de alunos.',
   generator: 'v0.app',
