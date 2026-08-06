@@ -20,7 +20,10 @@ export function AppHeader() {
     <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-4xl items-center justify-between gap-4 px-4">
         <Link href="/alunos" className="flex items-center gap-2.5">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-foreground text-background">
+          <span
+            className="flex size-8 items-center justify-center rounded-lg border"
+            style={{ backgroundColor: "#f4f4f5", borderColor: "rgba(0,0,0,0.1)", color: "#0a0a0a" }}
+          >
             <BeltIcon className="size-5" />
           </span>
           <span className="flex flex-col leading-tight">

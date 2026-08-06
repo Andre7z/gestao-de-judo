@@ -38,7 +38,10 @@ export default function LoginPage() {
     <main className="flex min-h-dvh flex-col items-center justify-center bg-secondary px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <span className="mb-4 flex size-12 items-center justify-center rounded-xl bg-foreground text-background">
+          <span
+            className="mb-4 flex size-12 items-center justify-center rounded-xl border"
+            style={{ backgroundColor: "#f4f4f5", borderColor: "rgba(0,0,0,0.1)", color: "#0a0a0a" }}
+          >
             <BeltIcon className="size-7" />
           </span>
           <h1 className="text-2xl font-semibold text-foreground">Zen&apos;yo App</h1>
