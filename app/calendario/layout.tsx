@@ -1,5 +1,5 @@
 import { ProtectedShell } from "@/components/protected-shell"
 
-export default function AlunosLayout({ children }: { children: React.ReactNode }) {
+export default function CalendarioLayout({ children }: { children: React.ReactNode }) {
   return <ProtectedShell>{children}</ProtectedShell>
 }

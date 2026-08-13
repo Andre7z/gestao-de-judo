@@ -1,14 +1,23 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { LogOut } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { LogOut, Users, ClipboardList, CalendarDays, Paperclip } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { BeltIcon } from "@/components/belt-icon"
 import { useApp } from "@/components/app-provider"
+import { cn } from "@/lib/utils"
+
+const NAV = [
+  { href: "/alunos", rotulo: "Alunos", icone: Users },
+  { href: "/atividades", rotulo: "Atividades", icone: ClipboardList },
+  { href: "/calendario", rotulo: "Calendário", icone: CalendarDays },
+  { href: "/anexos", rotulo: "Anexos", icone: Paperclip },
+]
 
 export function AppHeader() {
   const router = useRouter()
+  const pathname = usePathname()
   const { sair } = useApp()
 
   function handleSair() {
@@ -26,16 +35,42 @@ export function AppHeader() {
           >
             <BeltIcon className="size-5" />
           </span>
-          <span className="flex flex-col leading-tight">
+          <span className="hidden flex-col leading-tight sm:flex">
             <span className="text-sm font-semibold text-foreground">Zen&apos;yo App</span>
             <span className="text-xs text-muted-foreground">Gestão de Judô</span>
           </span>
         </Link>
+
         <Button variant="ghost" size="sm" onClick={handleSair}>
           <LogOut />
           Sair
         </Button>
       </div>
+
+      <nav className="mx-auto max-w-4xl px-2">
+        <ul className="flex items-center gap-1 overflow-x-auto">
+          {NAV.map((item) => {
+            const ativo = pathname === item.href || pathname.startsWith(item.href + "/")
+            const Icone = item.icone
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors",
+                    ativo
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <Icone className="size-4" />
+                  {item.rotulo}
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+      </nav>
     </header>
   )
 }
