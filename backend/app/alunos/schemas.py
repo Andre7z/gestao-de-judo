@@ -11,6 +11,7 @@ class AlunoCriar(BaseModel):
     codigo_zempo: str = Field(min_length=2)
     
 class AlunoPublico(BaseModel):
+    id: int
     nome: str 
     cpf: str 
     faixa: str 

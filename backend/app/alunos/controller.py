@@ -1,41 +1,41 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
+
+from .dependencias import obter_service
+from .erros import AlunoNaoEncontrado
 from .schemas import AlunoCriar, AlunoPublico, AlunoAtualizar
+from .service import AlunoService
 
 router = APIRouter(prefix="/alunos", tags=["Alunos"])
 
-# Banco de mentira: uma lista em memoria. Vira banco de verdade no encontro 4.
-alunos: list[dict] = []
 
+@router.get("/{aluno_id}", response_model=AlunoPublico)
+def buscar_aluno(
+    aluno_id: int,
+    service: AlunoService = Depends(obter_service),
+):
+    try:
+        return service.buscar(aluno_id)
+    except AlunoNaoEncontrado as erro:
+        raise HTTPException(status_code=404, detail=str(erro))
 
-@router.get("/", response_model=list[AlunoPublico])
-def listar():
-    return alunos
 
 @router.post("/", response_model=AlunoPublico, status_code=201)
-def criar(dados: AlunoCriar):
-    novo = {"id": len(alunos) + 1, **dados.model_dump()}
-    alunos.append(novo)
-    return novo
+def criar_aluno(
+    dados: AlunoCriar,
+    service: AlunoService = Depends(obter_service),
+):
+    return service.criar(
+        dados.nome,
+        dados.cpf,
+        dados.faixa,
+        dados.turma,
+        dados.tamanho_kimono,
+        dados.tamanho_faixa,
+        dados.codigo_zempo,
+    )
 
-@router.get("/{alunos_id}", response_model=AlunoPublico)
-def buscar(alunos_id: int):
-    for p in alunos:
-        if p["id"] == alunos_id:
-            return p
-    raise HTTPException(status_code=404, detail="Aluno nao encontrado")
-
-@router.patch("/{aluno_id}", response_model=AlunoPublico)
-def atualizar(aluno_id: int, dados: AlunoAtualizar):
-    for a in alunos:
-        if a["id"] == aluno_id:
-            a.update(dados.model_dump(exclude_unset=True))
-            return a
-    raise HTTPException(status_code=404, detail="aluno nao encontrado")
-
-@router.delete("/{aluno_id}", status_code=204)
-def apagar(aluno_id: int):
-    for a in alunos:
-        if a["id"] == aluno_id:
-            alunos.remove(a)
-            return
-    raise HTTPException(status_code=404, detail="Aluno nao encontrado")
+@router.get("/", response_model=list[AlunoPublico])
+def listar_alunos(
+    service: AlunoService = Depends(obter_service),
+):
+    return service.listar()
