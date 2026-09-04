@@ -1,156 +1,35 @@
-"""Onde a aplicacao encosta no banco: a conexao e o esquema.
+import os
 
-Este arquivo e' a infraestrutura do banco de dados do sistema.
-Todas as funcionalidades utilizam a conexao definida aqui.
-"""
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-import sqlite3
+load_dotenv()
 
-BANCO = "zenyoapp.db"
+# Sem valor padrao de proposito: faltando a variavel, a aplicacao nao
+# sobe apontando para o banco errado - ela reclama na hora de subir.
+URL = os.environ["DATABASE_URL"]
 
+# O SQLite recusa ser usado de uma thread diferente da que abriu a
+# conexao, e o FastAPI atende cada rota sincrona numa thread do pool.
+# Esta e a UNICA linha do projeto que sabe qual banco esta' rodando -
+# quando a URL vira postgresql://, ela some sozinha.
+ARGS = {"check_same_thread": False} if URL.startswith("sqlite") else {}
 
-ESQUEMA = """
-CREATE TABLE IF NOT EXISTS alunos (
-    id              INTEGER PRIMARY KEY,
-    nome            TEXT NOT NULL,
-    cpf             TEXT,
-    faixa           TEXT NOT NULL,
-    turma           TEXT,
-    tamanho_kimono  TEXT,
-    tamanho_faixa   TEXT,
-    codigo_zempo    TEXT
-);
-
-CREATE TABLE IF NOT EXISTS atividades (
-    id              INTEGER PRIMARY KEY,
-    tipo            TEXT NOT NULL,
-    titulo          TEXT NOT NULL,
-    data            TEXT NOT NULL,
-    local           TEXT,
-    descricao       TEXT
-);
-
-CREATE TABLE IF NOT EXISTS atividade_alunos (
-    id              INTEGER PRIMARY KEY,
-    atividade_id    INTEGER NOT NULL,
-    aluno_id        INTEGER NOT NULL,
-
-    FOREIGN KEY (atividade_id)
-        REFERENCES atividades(id)
-        ON DELETE CASCADE,
-
-    FOREIGN KEY (aluno_id)
-        REFERENCES alunos(id)
-        ON DELETE CASCADE,
-
-    UNIQUE (atividade_id, aluno_id)
-);
-"""
+engine = create_engine(URL, connect_args=ARGS)
+SessionLocal = sessionmaker(bind=engine, autoflush=False)
 
 
-ALUNOS_INICIAIS = [
-    (
-        1,
-        "João Silva",
-        "11111111111",
-        "Branca",
-        "Infantil A",
-        "M2",
-        "120",
-        "JU010101"
-    ),
-    (
-        2,
-        "Pedro Santos",
-        "22222222222",
-        "Amarela",
-        "Infantil B",
-        "M3",
-        "140",
-        "JU020202"
-    ),
-    (
-        3,
-        "Lucas Oliveira",
-        "33333333333",
-        "Verde",
-        "Juvenil A",
-        "M4",
-        "150",
-        "JU020203"
-    ),
-    (
-        4,
-        "Gabriel Souza",
-        "44444444444",
-        "Azul",
-        "Juvenil B",
-        "M5",
-        "160",
-        "JU030303"
-    ),
-    (
-        5,
-        "Carlos Pereira",
-        "55555555555",
-        "Roxa",
-        "Adulto A",
-        "A2",
-        "170",
-        "JU040404"
-    ),
-]
+class Base(DeclarativeBase):
+    """Todas as tabelas herdam daqui. E assim que o SQLAlchemy
+    descobre quais existem.
+    """
 
 
-def conectar(banco=BANCO):
-    """Cria uma conexao com o banco."""
-
-    conn = sqlite3.connect(banco)
-
-    # Permite acessar as colunas pelo nome:
-    # row["nome"], row["faixa"], etc.
-    conn.row_factory = sqlite3.Row
-
-    # Permite que as FOREIGN KEY funcionem corretamente.
-    conn.execute("PRAGMA foreign_keys = ON")
-
-    return conn
-
-
-def criar_banco(banco=BANCO):
-    """Cria as tabelas e os alunos iniciais, se necessario."""
-
-    conn = conectar(banco)
-
+def get_db():
+    """Uma sessao por requisicao, fechada mesmo se der erro."""
+    db = SessionLocal()
     try:
-        # Cria as tabelas
-        conn.executescript(ESQUEMA)
-
-        # Verifica se ja existem alunos
-        vazio = conn.execute(
-            "SELECT COUNT(*) FROM alunos"
-        ).fetchone()[0] == 0
-
-        # Se nao existir nenhum aluno, cria os alunos iniciais
-        if vazio:
-            conn.executemany(
-                """
-                INSERT INTO alunos (
-                    id,
-                    nome,
-                    cpf,
-                    faixa,
-                    turma,
-                    tamanho_kimono,
-                    tamanho_faixa,
-                    codigo_zempo
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                ALUNOS_INICIAIS,
-            )
-
-        conn.commit()
-
+        yield db
     finally:
-        conn.close()
+        db.close()

@@ -1,0 +1,40 @@
+from sqlalchemy.orm import Session
+
+from .models import Aluno
+
+# A UNICA parte do sistema que sabe que existe um banco.
+# Se aparecer um `db.query` fora daqui, a camada vazou.
+
+
+def listar(db: Session):
+    return db.query(Aluno).all()
+
+
+def buscar(db: Session, aluno_id: int):
+    return db.query(Aluno).filter(Aluno.id == aluno_id).first()
+
+
+def criar(db: Session, dados: dict):
+    aluno = Aluno(**dados)
+    db.add(aluno)
+    db.commit()
+    db.refresh(aluno)
+    return aluno
+
+
+def buscar_por_titulo(db: Session, titulo: str):
+    return db.query(Aluno).filter(Aluno.titulo == titulo).first()
+
+
+def atualizar(db: Session, aluno: Aluno, mudancas: dict):
+    for campo, valor in mudancas.items():
+        setattr(aluno, campo, valor)
+
+    db.commit()
+    db.refresh(aluno)
+    return aluno
+
+
+def apagar(db: Session, aluno: Aluno):
+    db.delete(aluno)
+    db.commit()

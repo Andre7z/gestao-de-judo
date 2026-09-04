@@ -1,37 +1,37 @@
-from .erros import AlunoNaoEncontrado
+"""As regras da biblioteca, e mais nada.
 
-class AlunoService:
-    def __init__(self, repositorio):
-        # Nao e a sessao do banco: e qualquer coisa que saiba buscar e salvar.
-        self.repositorio = repositorio
+Este arquivo decide. Ele nao levanta erro de protocolo, nao monta consulta
+e nao abre conexao: quem fala HTTP e o controller, quem fala SQL e o
+repository. Um dia essas regras podem ser chamadas por um script de
+importacao, sem requisicao nenhuma para responder -- e vao funcionar.
 
-    def listar(self):
-        return self.repositorio.listar_alunos()
+O `db` atravessa este arquivo sem ser aberto: o Service so o repassa para
+o repository, que e quem sabe o que fazer com ele.
+"""
+from . import repository
+from .erros import (
+AlunoNaoEncontrado
+)
 
-    def buscar(self, aluno_id):
-        aluno = self.repositorio.buscar_aluno(aluno_id)
-        if aluno is None:
-            raise AlunoNaoEncontrado(
-                f"Aluno {aluno_id} nao encontrado"
-            )
-        return aluno
 
-    def criar(
-        self,
-        nome,
-        cpf,
-        faixa,
-        turma,
-        tamanho_kimono,
-        tamanho_faixa,
-        codigo_zempo
-    ):
-        return self.repositorio.registrar(
-            nome,
-            cpf,
-            faixa,
-            turma,
-            tamanho_kimono,
-            tamanho_faixa,
-            codigo_zempo
-        )
+def listar(db):
+    return repository.listar(db)
+
+
+def buscar(db, aluno_id):
+    aluno = repository.buscar(db, aluno_id)
+    if aluno is None:
+        raise AlunoNaoEncontrado(f"Aluno {aluno_id} nao esta cadastrado")
+    return aluno
+
+
+def criar(db, dados):
+    return repository.criar(db, dados)
+
+def atualizar(db, aluno_id, mudancas):
+    aluno = buscar(db, aluno_id)
+    return repository.atualizar(db, aluno, mudancas)
+
+def apagar(db, aluno_id):
+    aluno = buscar(db, aluno_id)
+    repository.apagar(db, aluno)

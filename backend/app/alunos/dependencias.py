@@ -1,5 +1,5 @@
 from ..database import BANCO
-from .repositorio import RepositorioSQLite
+from .repository import RepositorioSQLite
 from .service import AlunoService
 
 
