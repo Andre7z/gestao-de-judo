@@ -1,41 +1,42 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
-from .dependencias import obter_service
-from .erros import AlunoNaoEncontrado
-from .schemas import AlunoCriar, AlunoPublico, AlunoAtualizar
-from .service import AlunoService
+from ..database import get_db
+from . import service
+from .schemas import AlunoAtualizar, AlunoCriar, AlunoPublico
 
-router = APIRouter(prefix="/alunos", tags=["Alunos"])
+router = APIRouter(prefix="/aluno", tags=["Aluno"])
+
+# Nenhum `if` de regra e nenhum `try` aqui: as recusas do Service viram
+# HTTP no tradutor registrado no main.py, uma vez para todas as rotas.
 
 
-@router.get("/{aluno_id}", response_model=AlunoPublico)
-def buscar_aluno(
-    aluno_id: int,
-    service: AlunoService = Depends(obter_service),
-):
-    try:
-        return service.buscar(aluno_id)
-    except AlunoNaoEncontrado as erro:
-        raise HTTPException(status_code=404, detail=str(erro))
+@router.get("/", response_model=list[AlunoPublico])
+def listar(db: Session = Depends(get_db)):
+    return service.listar(db)
 
 
 @router.post("/", response_model=AlunoPublico, status_code=201)
-def criar_aluno(
-    dados: AlunoCriar,
-    service: AlunoService = Depends(obter_service),
+def criar(dados: AlunoCriar, db: Session = Depends(get_db)):
+    return service.criar(db, dados.model_dump())
+
+
+@router.get("/{aluno_id}", response_model=AlunoPublico)
+def buscar(aluno_id: int, db: Session = Depends(get_db)):
+    return service.buscar(db, aluno_id)
+
+
+@router.patch("/{aluno_id}", response_model=AlunoPublico)
+def atualizar(
+    aluno_id: int,
+    dados: AlunoAtualizar,
+    db: Session = Depends(get_db),
 ):
-    return service.criar(
-        dados.nome,
-        dados.cpf,
-        dados.faixa,
-        dados.turma,
-        dados.tamanho_kimono,
-        dados.tamanho_faixa,
-        dados.codigo_zempo,
+    return service.atualizar(
+        db, aluno_id, dados.model_dump(exclude_unset=True)
     )
 
-@router.get("/", response_model=list[AlunoPublico])
-def listar_alunos(
-    service: AlunoService = Depends(obter_service),
-):
-    return service.listar()
+
+@router.delete("/{aluno_id}", status_code=204)
+def apagar(aluno_id: int, db: Session = Depends(get_db)):
+    service.apagar(db, aluno_id)
