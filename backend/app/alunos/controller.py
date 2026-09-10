@@ -32,9 +32,7 @@ def atualizar(
     dados: AlunoAtualizar,
     db: Session = Depends(get_db),
 ):
-    return service.atualizar(
-        db, aluno_id, dados.model_dump(exclude_unset=True)
-    )
+    return service.atualizar(db, aluno_id, dados.model_dump(exclude_unset=True))
 
 
 @router.delete("/{aluno_id}", status_code=204)
