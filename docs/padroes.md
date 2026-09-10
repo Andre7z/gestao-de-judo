@@ -5,6 +5,9 @@ Evita repetir o código de conexão do banco em cada rota. O FastAPI, usando o D
 O que aconteceria sem ele?
 Cada rota teria que criar o Service. Assim, teria o mesmo código repetido várias vezes em várias rotas. Caso o banco mudasse, teria que mudar várias rotas.
 
+Quando vale e quando é burocracia — no meu sistema:
+Vale a pena quando várias rotas precisam do banco e o Depends evita repetir o código de conexão. Seria burocracia se fosse usado em algo muito simples que não precisasse ser reutilizado.
+
 no controller
 @router.post("/", response_model=AlunoPublico, status_code=201)
 def criar(dados: AlunoCriar, db: Session = Depends(get_db)):
@@ -25,6 +28,9 @@ Centraliza o tratamento dos erros da aplicação, evitando que cada rota precise
 
 O que aconteceria sem ele?
 O mesmo tratamento de erros teria que ser repetido em várias rotas. Se fosse necessário mudar algum erro, seria preciso alterar em vários lugares.
+
+Quando vale e quando é burocracia — no meu sistema:
+Vale a pena quando o sistema possui vários erros e eles podem ser tratados em um único lugar. Seria burocracia se o sistema tivesse poucos erros e fosse muito pequeno.
 
 no erros
 class ErroAluno(Exception):
@@ -53,6 +59,9 @@ Ajuda a organizar as rotas em grupos. Dessa maneira pode colocar várias rotas d
 O que aconteceria sem ele?
 As rotas ficariam todas no main.py. Conforme o projeto fosse crescendo, o arquivo ficaria muito grande e mais difícil de organizar.
 
+Quando vale e quando é burocracia — no meu sistema:
+Vale a pena quando o sistema possui várias rotas e o router ajuda a organizá-las. Seria burocracia se o sistema tivesse poucas rotas e não precisasse de organização por grupos.
+
 no controller
 router = APIRouter(prefix="/aluno", tags=["Aluno"])
 @router.get("/")
@@ -73,6 +82,9 @@ Permite que a Session junte várias alterações no banco e salve tudo de uma ve
 
 O que aconteceria sem ele?
 As alterações poderiam ser salvas separadamente. Se uma alteração desse erro depois de outra já ter sido salvao, assim o banco poderia ficar com apenas parte das mudanças.
+
+Quando vale e quando é burocracia — no meu sistema:
+Vale a pena porque o sistema faz alterações no banco usando a Session e o commit para confirmar as mudanças. Seria burocracia se o sistema tivesse operações muito simples e não precisasse controlar várias alterações no banco.
 
 no database
 SessionLocal = sessionmaker(bind=engine)
