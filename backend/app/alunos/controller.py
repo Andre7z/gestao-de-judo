@@ -2,10 +2,15 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from ..database import get_db
+from ..seguranca import get_current_user
 from . import service
 from .schemas import AlunoAtualizar, AlunoCriar, AlunoPublico
 
-router = APIRouter(prefix="/aluno", tags=["Aluno"])
+router = APIRouter(
+    prefix="/aluno",
+    tags=["Aluno"],
+    dependencies=[Depends(get_current_user)],
+)
 
 # Nenhum `if` de regra e nenhum `try` aqui: as recusas do Service viram
 # HTTP no tradutor registrado no main.py, uma vez para todas as rotas.
