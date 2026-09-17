@@ -22,8 +22,8 @@ def criar(db: Session, dados: dict):
     return aluno
 
 
-def buscar_por_titulo(db: Session, titulo: str):
-    return db.query(Aluno).filter(Aluno.titulo == titulo).first()
+def buscar_por_nome(db: Session, nome: str):
+    return db.query(Aluno).filter(Aluno.nome == nome).first()
 
 
 def atualizar(db: Session, aluno: Aluno, mudancas: dict):

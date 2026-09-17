@@ -1,20 +1,25 @@
+from datetime import date
 from pydantic import BaseModel
 
-
-class AtividadeEntrada(BaseModel):  # ENTRA no pedido
-
+class AtividadeEntrada(BaseModel):
     tipo: str
-    titulo: str
-    data: str
+    nome: str
+    data: date
     local: str | None = None
     descricao: str | None = None
 
+    aluno_id: int | None = None
+    nova_faixa: str | None = None
+    presenca: bool | None = None
 
-class AtividadePublico(BaseModel):  # SAI na resposta
-
+class AtividadePublico(BaseModel):
     id: int
     tipo: str
-    titulo: str
-    data: str
+    nome: str
+    data: date
     local: str | None = None
     descricao: str | None = None
+
+    aluno_id: int | None = None
+    nova_faixa: str | None = None
+    presenca: bool | None = None

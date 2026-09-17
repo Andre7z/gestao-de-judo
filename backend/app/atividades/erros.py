@@ -1,6 +1,9 @@
-class ErroDeAtividade(Exception):
-    """Qualquer erro relacionado a uma atividade."""
+class ErroAtividade(Exception):
+    """Qualquer erro que envolve Atividade."""
 
 
-class AtividadeNaoEncontrada(ErroDeAtividade):
-    """A atividade solicitada nao existe."""
+class AtividadeNaoEncontrada(ErroAtividade):
+    """Atividade nao existe."""
+
+class CampoNaoEditavel(ErroAtividade):
+    """Tentaram editar pelo catalogo um campo que nao e do catalogo."""
