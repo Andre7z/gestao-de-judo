@@ -7,3 +7,6 @@ class AtividadeNaoEncontrada(ErroAtividade):
 
 class CampoNaoEditavel(ErroAtividade):
     """Tentaram editar pelo catalogo um campo que nao e do catalogo."""
+    
+class TipoDeAtividadeDesconhecido(ErroAtividade):
+        """Tipo de atividade nao existe."""
