@@ -1,21 +1,66 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
-from .dependencias import obter_service
+from ..database import get_db
+from ..seguranca import get_current_user
+from . import service
 from .schemas import AtividadeEntrada, AtividadePublico
-from .service import AtividadeService
-
-router = APIRouter(prefix="/atividades", tags=["Atividades"])
 
 
-@router.post("/", status_code=201, response_model=AtividadePublico)
-def criar_atividade(
+router = APIRouter(
+    prefix="/atividades",
+    tags=["Atividades"],
+    dependencies=[Depends(get_current_user)],
+)
+
+
+@router.get("/", response_model=list[AtividadePublico])
+def listar(db: Session = Depends(get_db)):
+    return service.listar(db)
+
+
+@router.post("/", response_model=AtividadePublico, status_code=201)
+def criar(
     dados: AtividadeEntrada,
-    service: AtividadeService = Depends(obter_service),
+    db: Session = Depends(get_db),
 ):
     return service.criar(
-        dados.tipo,
-        dados.titulo,
-        dados.data,
-        dados.local,
-        dados.descricao,
+        db,
+        dados.model_dump(),
     )
+
+
+@router.get("/{atividade_id}", response_model=AtividadePublico)
+def buscar(
+    atividade_id: int,
+    db: Session = Depends(get_db),
+):
+    return service.buscar(db, atividade_id)
+
+
+@router.patch("/{atividade_id}", response_model=AtividadePublico)
+def atualizar(
+    atividade_id: int,
+    dados: AtividadeEntrada,
+    db: Session = Depends(get_db),
+):
+    return service.atualizar(
+        db,
+        atividade_id,
+        dados.model_dump(exclude_unset=True),
+    )
+
+
+@router.delete("/{atividade_id}", status_code=204)
+def apagar(
+    atividade_id: int,
+    db: Session = Depends(get_db),
+):
+    service.apagar(db, atividade_id)
+    
+@router.get("/{atividade_id}/relatorio")
+def gerar_relatorio(
+    atividade_id: int,
+    db: Session = Depends(get_db)
+):
+    return service.gerar_relatorio(db, atividade_id)
