@@ -19,3 +19,6 @@ class Atividade(Base):
     presenca = Column(Boolean, nullable=True)
 
     aluno = relationship("Aluno")
+    
+    dono_id = Column(Integer, ForeignKey("usuarios.id", name="fk_atividades_dono"), nullable=True)
+    dono = relationship("Usuario", back_populates="atividades")
