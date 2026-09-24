@@ -11,6 +11,16 @@
             "name": "zenyo_app",
             "database": "jdbc:postgresql://localhost:5432/zenyo_app",
             "username": "postgres"
+        },
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "zenyo_app",
+            "database": "zenyo_app",
+            "username": "postgres"
         }
     ]
 }
