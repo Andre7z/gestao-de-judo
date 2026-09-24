@@ -1,5 +1,14 @@
-from sqlalchemy import Column, Date, Integer, String
+from sqlalchemy import Column, Date, ForeignKey, Integer, String, Table
+from sqlalchemy.orm import relationship
 from ..database import Base
+
+
+atividade_alunos = Table(
+    "atividade_alunos",
+    Base.metadata,
+    Column("atividade_id", ForeignKey("atividades.id", ondelete="CASCADE"), primary_key=True),
+    Column("aluno_id", ForeignKey("alunos.id", ondelete="CASCADE"), primary_key=True),
+)
 
 
 class Aluno(Base):
@@ -18,6 +27,12 @@ class Aluno(Base):
     tamanho_kimono = Column(String(5), nullable=True)
     tamanho_faixa = Column(String(5), nullable=True)
     codigo_zempo = Column(String(14), nullable=True)
+
+    atividades = relationship(
+        "Atividade",
+        secondary=atividade_alunos,
+        back_populates="alunos",
+    )
 
 
 @property

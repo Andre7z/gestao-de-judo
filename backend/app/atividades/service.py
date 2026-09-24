@@ -11,8 +11,9 @@ Cada usuario enxerga e altera somente as suas proprias atividades.
 """
 
 from . import repository
+from ..alunos.erros import AlunoNaoEncontrado
 from .erros import AtividadeNaoEncontrada
-from .politicas import estrategia_para
+from .politicas import RelatorioFactory
 
 
 def listar(db, usuario, tipo=None, nome=None):
@@ -37,10 +38,16 @@ def buscar(db, usuario, atividade_id):
 
 
 def criar(db, usuario, dados):
+    aluno_ids = dados.pop("aluno_ids", [])
+    alunos = repository.buscar_alunos(db, aluno_ids)
+    if len(alunos) != len(set(aluno_ids)):
+        raise AlunoNaoEncontrado("Um ou mais alunos nao estao cadastrados")
+
     return repository.criar(
         db,
         {
             **dados,
+            "alunos": alunos,
             "dono_id": usuario.id
         }
     )
@@ -51,6 +58,13 @@ def atualizar(db, usuario, atividade_id, mudancas):
         usuario,
         atividade_id
     )
+
+    if "aluno_ids" in mudancas:
+        aluno_ids = mudancas.pop("aluno_ids") or []
+        alunos = repository.buscar_alunos(db, aluno_ids)
+        if len(alunos) != len(set(aluno_ids)):
+            raise AlunoNaoEncontrado("Um ou mais alunos nao estao cadastrados")
+        mudancas["alunos"] = alunos
 
     return repository.atualizar(
         db,
@@ -79,6 +93,6 @@ def gerar_relatorio(db, usuario, atividade_id):
         atividade_id
     )
 
-    estrategia = estrategia_para(atividade.tipo)
+    estrategia = RelatorioFactory.criar(atividade.tipo)
 
     return estrategia.gerar(atividade)

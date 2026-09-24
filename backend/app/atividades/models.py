@@ -2,6 +2,7 @@ from sqlalchemy import Boolean, Column, Date, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..database import Base
+from ..alunos.models import atividade_alunos
 
 
 class Atividade(Base):
@@ -14,11 +15,18 @@ class Atividade(Base):
     local = Column(String(120), nullable=True)
     descricao = Column(String(500), nullable=True)
 
-    aluno_id = Column(Integer, ForeignKey("alunos.id"), nullable=True)
     nova_faixa = Column(String(120), nullable=True)
     presenca = Column(Boolean, nullable=True)
 
-    aluno = relationship("Aluno")
+    alunos = relationship(
+        "Aluno",
+        secondary=atividade_alunos,
+        back_populates="atividades",
+    )
+
+    @property
+    def aluno_ids(self):
+        return [aluno.id for aluno in self.alunos]
     
     dono_id = Column(Integer, ForeignKey("usuarios.id", name="fk_atividades_dono"), nullable=True)
     dono = relationship("Usuario", back_populates="atividades")
