@@ -16,7 +16,7 @@ class AtividadeEntrada(BaseModel):  # ENTRA no cadastro
     local: str | None = None
     descricao: str | None = None
 
-    aluno_id: int | None = None
+    aluno_ids: list[int] = []
     nova_faixa: str | None = None
     presenca: bool | None = None
 
@@ -51,7 +51,7 @@ class AtividadePublico(BaseModel):  # SAI na resposta
     local: str | None = None
     descricao: str | None = None
 
-    aluno_id: int | None = None
+    aluno_ids: list[int]
     nova_faixa: str | None = None
     presenca: bool | None = None
 
@@ -63,7 +63,7 @@ class AtividadeAtualizar(BaseModel):  # ENTRA na edição, tudo opcional
     local: str | None = None
     descricao: str | None = None
 
-    aluno_id: int | None = None
+    aluno_ids: list[int] | None = None
     nova_faixa: str | None = None
     presenca: bool | None = None
 
