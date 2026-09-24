@@ -9,18 +9,62 @@ export type Aluno = {
   codigo_zempo: string
 }
 
-// Opções fixas usadas nos selects/filtros
-export const FAIXAS = [
+// Catálogo de faixas do judô. A ordem pode variar por academia.
+export const FAIXAS_PADRAO = [
   "Branca",
+  "Branca Ponta Cinza",
   "Cinza",
+  "Cinza Ponta Azul",
   "Azul",
+  "Azul Ponta Amarela",
   "Amarela",
+  "Amarela Ponta Laranja",
   "Laranja",
   "Verde",
   "Roxa",
   "Marrom",
   "Preta",
 ] as const
+
+export type Faixa = (typeof FAIXAS_PADRAO)[number]
+
+export const FAIXAS = FAIXAS_PADRAO
+
+export const FAIXAS_POR_ACADEMIA: Record<string, readonly string[]> = {
+  padrao: FAIXAS_PADRAO,
+  "academia-padrao": FAIXAS_PADRAO,
+  "academia-azul": [
+    "Branca",
+    "Branca Ponta Cinza",
+    "Cinza",
+    "Cinza Ponta Azul",
+    "Azul",
+    "Azul Ponta Amarela",
+    "Amarela",
+    "Amarela Ponta Laranja",
+    "Laranja",
+    "Verde",
+    "Roxa",
+    "Marrom",
+    "Preta",
+  ],
+}
+
+export function faixasDaAcademia(academia?: string): readonly string[] {
+  const chave = academia ?? "padrao"
+  return FAIXAS_POR_ACADEMIA[chave] ?? FAIXAS_PADRAO
+}
+
+export function proximaFaixaSugerida(faixaAtual?: string, academia?: string): string | null {
+  if (!faixaAtual) return null
+
+  const ordem = faixasDaAcademia(academia)
+  const indice = ordem.indexOf(faixaAtual)
+
+  if (indice === -1) return null
+
+  return ordem[indice + 1] ?? null
+}
 
 export const TURMAS = [
   "Infantil A",
@@ -100,9 +144,13 @@ export const ALUNOS_INICIAIS: Aluno[] = [
 // Mapa de cores para exibir a faixa como um selo visual
 export const FAIXA_ESTILO: Record<string, string> = {
   Branca: "bg-muted text-foreground border border-border",
+  "Branca Ponta Cinza": "bg-neutral-100 text-neutral-800 border border-neutral-300",
   Cinza: "bg-neutral-200 text-neutral-800 border border-neutral-300",
+  "Cinza Ponta Azul": "bg-sky-100 text-sky-800 border border-sky-200",
   Azul: "bg-blue-100 text-blue-800 border border-blue-200",
+  "Azul Ponta Amarela": "bg-yellow-100 text-yellow-800 border border-yellow-200",
   Amarela: "bg-yellow-100 text-yellow-800 border border-yellow-200",
+  "Amarela Ponta Laranja": "bg-orange-100 text-orange-800 border border-orange-200",
   Laranja: "bg-orange-100 text-orange-800 border border-orange-200",
   Verde: "bg-green-100 text-green-800 border border-green-200",
   Roxa: "bg-purple-100 text-purple-800 border border-purple-200",
